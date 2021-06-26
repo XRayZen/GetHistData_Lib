@@ -38,7 +38,7 @@ pub fn UnixTimeSecToDateTime(value: i64) -> DateTime<Utc> {
     let dt=DateTime::parse_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S");
     match dt {
         Ok(date) =>dates =date.with_timezone(&Utc),
-        Err(_) => todo!(),
+        Err(error) =>println!("Unixtime error {}",error),
     }
     dates+Duration::milliseconds(value)
 }
