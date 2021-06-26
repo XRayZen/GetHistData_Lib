@@ -18,13 +18,18 @@ impl Generate_TrueInstrumentData {
         let mut res_itme: Vec<True_GroupData> = Vec::new();
         for item in obj.groups.iter() {
             if item.1.instruments.iter().len() > 0 {
-                //すべての空白を-で置き換えて小文字にする
+                //すべての空白を-で置き換える
                 let group_id = Regex::new(r"[^A-Za-z0-9]+")
                     .unwrap()
                     .replace(&item.0, "-")
                     .to_string();
 
-                let group_name = String::new();
+                let mut  group_name = String::new();
+                if item.1.id=="" {
+                    group_name=item.1.title.to_string();
+                }else {
+                    group_name=item.1.id.to_string();
+                }
                 let pre_group_name = item.0.clone();
                 let mut  list_instruments: Vec<String> = Vec::new();
 
@@ -38,7 +43,7 @@ impl Generate_TrueInstrumentData {
                             group_id,
                             group_name,
                             pre_group_name,
-                            Vec::new(),
+                            Vec::new(),//ここは後で入れるから空にしておく
                             list_instruments,
                         );
                         res_itme.push(Save);
