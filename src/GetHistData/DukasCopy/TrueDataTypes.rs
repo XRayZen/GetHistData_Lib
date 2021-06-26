@@ -1,5 +1,5 @@
 use core::f32;
-#[derive(Clone,Debug,Default)]
+#[derive(Debug,Default)]
 pub struct True_Instrument {
     pub DataProviderName: String,
     pub Key: String,
@@ -14,7 +14,7 @@ impl True_Instrument {
     pub fn new(DataProviderName: String, Key: String, Name: String, Description: String, historicalFileName: String, Group: True_GroupData, metaData: True_InstrumentMetaData) -> Self { Self { DataProviderName, Key, Name, Description, historicalFileName, Group, metaData } }
 }
 
-#[derive(Clone,Debug,Default)]
+#[derive(Debug,Default)]
 pub struct True_GroupData {
     pub GroupID: String,
     pub GroupName: String,
@@ -40,7 +40,7 @@ impl True_GroupData {
         }
     }
 }
-#[derive(Clone,Debug,Default)]
+#[derive(Debug,Default)]
 pub struct True_InstrumentMetaData {
     pub decimalFactor: f64,
     pub startHourForTicks: String,

@@ -13,7 +13,7 @@ impl Generate_TrueInstrumentData {
     pub fn Generate() {
         let obj = Self::GetMetaData();
         let generateInstrumentGroupList = Self::generateInstrumentGroupData(&obj);
-        let geneInstList =Self::GenerateInstrumentList(&obj, &generateInstrumentGroupList);
+        let geneInstList = Self::GenerateInstrumentList(&obj, &generateInstrumentGroupList);
     }
     pub fn generateInstrumentGroupData(obj: &MetaDataResponse) -> Vec<True_GroupData> {
         let mut res_itme: Vec<True_GroupData> = Vec::new();
@@ -60,7 +60,7 @@ impl Generate_TrueInstrumentData {
         obj: &MetaDataResponse,
         groupDates: &Vec<True_GroupData>,
     ) -> Vec<True_Instrument> {
-        let mut Res: Vec<True_Instrument>=Vec::default();
+        let mut Res: Vec<True_Instrument> = Vec::default();
         for item in obj.instruments.iter() {
             let mut inst = item.1.clone();
             let mut Hist_Filename = String::new();
@@ -73,10 +73,10 @@ impl Generate_TrueInstrumentData {
             let group_option = groupdata
                 .iter()
                 .find(|&x| x.Group_Instruments.contains(&key));
-            let mut group =True_GroupData::default();
+            let mut group = True_GroupData::default();
             match group_option.clone() {
                 Some(data) => {
-                    group = data.clone();
+                    //group = data.clone();
                     group.Tags = item.1.tag_list.clone();
                 }
                 None => (),
@@ -102,7 +102,7 @@ impl Generate_TrueInstrumentData {
             );
             Res.push(res);
         }
-       return  Res;
+        return Res;
     }
 
     /**
@@ -133,6 +133,7 @@ impl Generate_TrueInstrumentData {
         std::io::Read::read_to_string(&mut res, &mut data).unwrap();
         Self::Convertjson_metadatares(&data)
     }
+
     fn Convertjson_metadatares(txt: &String) -> MetaDataResponse {
         let res = serde_json::from_str(&txt).unwrap();
         res
