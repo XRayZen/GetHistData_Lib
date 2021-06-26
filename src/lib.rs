@@ -1,4 +1,4 @@
-pub  mod GetHistData;
+pub mod GetHistData;
 #[cfg(test)]
 mod tests {
     #[test]
