@@ -32,13 +32,13 @@ pub fn ToISOString(time: &String) -> String {
 
 pub fn UnixTimeSecToDateTime(value: i64) -> DateTime<Utc> {
     //let dt = Utc.timestamp(value, 00);
-    let mut dates: DateTime<FixedOffset>=
-    DateTime::parse_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S").unwrap();
-    let dt = DateTime::parse_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S");
+    let mut dates=
+    Utc.datetime_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S").unwrap();
+    let dt =Utc.datetime_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S");
     match dt {
         Ok(date) => dates = date + Duration::milliseconds(value),
         Err(error) => println!("Unixtime error {}", error),
     }
-   let dt2= dates.with_timezone(&Utc);
+   let dt2= dates;
    dt2
 }
