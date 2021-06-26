@@ -2,7 +2,7 @@ pub mod date;
 pub mod range;
 use std::{default, time::SystemTime};
 
-use chrono::{DateTime, FixedOffset, NaiveDateTime, TimeZone, Utc};
+use chrono::{DateTime, Duration, FixedOffset, NaiveDateTime, TimeZone, Utc};
 use regex::Regex;
 
 pub fn generateTrueIdNane(histname: &String, key: &String) -> String {
@@ -33,6 +33,12 @@ pub fn ToISOString(time: &String) -> String {
 
 
 pub fn UnixTimeSecToDateTime(value: i64) -> DateTime<Utc> {
-    let dt = Utc.timestamp(value, 00);
-    dt
+    //let dt = Utc.timestamp(value, 00);
+    let mut  dates=Utc::now();
+    let dt=DateTime::parse_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S");
+    match dt {
+        Ok(date) =>dates =date.with_timezone(&Utc),
+        Err(_) => todo!(),
+    }
+    dates+Duration::milliseconds(value)
 }
