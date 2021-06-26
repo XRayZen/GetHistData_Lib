@@ -4,7 +4,7 @@ use crate::GetHistData::Service::Util::{self, generateTrueIdNane};
 
 use super::{
     GetWebData::{self, generate_data_types::MetaDataResponse},
-    TrueDataTypes::True_GroupData,
+    TrueDataTypes::{True_GroupData, True_Instrument, True_InstrumentMetaData},
 };
 
 pub struct Generate_TrueInstrumentData {}
@@ -24,14 +24,14 @@ impl Generate_TrueInstrumentData {
                     .replace(&item.0, "-")
                     .to_string();
 
-                let mut  group_name = String::new();
-                if item.1.id=="" {
-                    group_name=item.1.title.to_string();
-                }else {
-                    group_name=item.1.id.to_string();
+                let mut group_name = String::new();
+                if item.1.id == "" {
+                    group_name = item.1.title.to_string();
+                } else {
+                    group_name = item.1.id.to_string();
                 }
                 let pre_group_name = item.0.clone();
-                let mut  list_instruments: Vec<String> = Vec::new();
+                let mut list_instruments: Vec<String> = Vec::new();
 
                 match item.1.instruments.clone() {
                     Some(data) => {
@@ -43,7 +43,7 @@ impl Generate_TrueInstrumentData {
                             group_id,
                             group_name,
                             pre_group_name,
-                            Vec::new(),//ここは後で入れるから空にしておく
+                            Vec::new(), //ここは後で入れるから空にしておく
                             list_instruments,
                         );
                         res_itme.push(Save);
@@ -54,6 +54,56 @@ impl Generate_TrueInstrumentData {
         }
         res_itme
     }
+
+    pub fn GenerateInstrumentList(
+        obj: &MetaDataResponse,
+        groupDates: &Vec<True_GroupData>,
+    ) -> Vec<True_Instrument> {
+        let mut Res: Vec<True_Instrument>=Vec::default();
+        for item in obj.instruments.iter() {
+            let mut inst = item.1.clone();
+            let mut Hist_Filename = String::new();
+            match inst.historical_filename.clone() {
+                Some(txt) => Hist_Filename = txt,
+                None => (),
+            }
+            let groupdata = groupDates.clone();
+            let mut key = Util::generateTrueIdNane(&Hist_Filename, item.0);
+            let group_option = groupdata
+                .iter()
+                .find(|&x| x.Group_Instruments.contains(&key));
+            let mut group =True_GroupData::default();
+            match group_option.clone() {
+                Some(data) => {
+                    group = data.clone();
+                    group.Tags = item.1.tag_list.clone();
+                }
+                None => (),
+            }
+
+            let decimal = 10.0 / &inst.pipValue.clone();
+            let metadata = True_InstrumentMetaData::new(
+                decimal,
+                Util::ToISOString(&inst.history_start_tick),
+                Util::ToISOString(&inst.history_start_60sec),
+                Util::ToISOString(&inst.history_start_60min),
+                Util::ToISOString(&inst.history_start_day),
+            );
+
+            let res = True_Instrument::new(
+                "dukasCopy".to_string(),
+                key.clone(),
+                inst.name.clone(),
+                inst.description.clone(),
+                Hist_Filename,
+                group,
+                metadata,
+            );
+            Res.push(res);
+        }
+       return  Res;
+    }
+
     /**
     現時点（2021年6月26日）では最新のjsonをうまくデシリアライズできないため
     ローカルにある古いjsonファイルを読みこんで使う

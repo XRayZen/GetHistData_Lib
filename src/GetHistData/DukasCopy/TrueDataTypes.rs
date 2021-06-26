@@ -1,5 +1,5 @@
 use core::f32;
-
+#[derive(Clone,Debug,Default)]
 pub struct True_Instrument {
     pub DataProviderName: String,
     pub Key: String,
@@ -10,6 +10,11 @@ pub struct True_Instrument {
     pub metaData: True_InstrumentMetaData,
 }
 
+impl True_Instrument {
+    pub fn new(DataProviderName: String, Key: String, Name: String, Description: String, historicalFileName: String, Group: True_GroupData, metaData: True_InstrumentMetaData) -> Self { Self { DataProviderName, Key, Name, Description, historicalFileName, Group, metaData } }
+}
+
+#[derive(Clone,Debug,Default)]
 pub struct True_GroupData {
     pub GroupID: String,
     pub GroupName: String,
@@ -35,13 +40,17 @@ impl True_GroupData {
         }
     }
 }
-
+#[derive(Clone,Debug,Default)]
 pub struct True_InstrumentMetaData {
-    pub decimalFactor: f32,
+    pub decimalFactor: f64,
     pub startHourForTicks: String,
     pub startDayForMinuteCandles: String,
     pub startMonthForHourlyCandles: String,
     pub startYearForDailyCandles: String,
+}
+
+impl True_InstrumentMetaData {
+    pub fn new(decimalFactor: f64, startHourForTicks: String, startDayForMinuteCandles: String, startMonthForHourlyCandles: String, startYearForDailyCandles: String) -> Self { Self { decimalFactor, startHourForTicks, startDayForMinuteCandles, startMonthForHourlyCandles, startYearForDailyCandles } }
 }
 
 pub enum TimeRangeType {
