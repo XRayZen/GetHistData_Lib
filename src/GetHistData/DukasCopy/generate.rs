@@ -12,9 +12,10 @@ pub struct Generate_TrueInstrumentData {}
 impl Generate_TrueInstrumentData {
     pub fn Generate() {
         let obj = Self::GetMetaData();
-        let generateInstrumentGroupList = Self::generateInstrumentGroupData(obj);
+        let generateInstrumentGroupList = Self::generateInstrumentGroupData(&obj);
+        let geneInstList =Self::GenerateInstrumentList(&obj, &generateInstrumentGroupList);
     }
-    pub fn generateInstrumentGroupData(obj: MetaDataResponse) -> Vec<True_GroupData> {
+    pub fn generateInstrumentGroupData(obj: &MetaDataResponse) -> Vec<True_GroupData> {
         let mut res_itme: Vec<True_GroupData> = Vec::new();
         for item in obj.groups.iter() {
             if item.1.instruments.iter().len() > 0 {
