@@ -17,7 +17,8 @@ pub struct url_generator{
 
 impl url_generator {
     pub fn generateUrls(instrumrnt:True_Instrument,timeframe:DukasTimeFrame,
-    pricetype:PriceType,startdate:DateTime<Utc>,enddate:DateTime<Utc>)->Vec<Output_URLGenerate> {
+    pricetype:PriceType,startdate:DateTime<Utc>,enddate:DateTime<Utc>)
+    /*Vec<Output_URLGenerate>*/ {
         
     }
 }

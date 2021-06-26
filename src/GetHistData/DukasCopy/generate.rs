@@ -14,8 +14,8 @@ impl Generate_TrueInstrumentData {
         let obj = Self::GetMetaData();
         let generateInstrumentGroupList = Self::generateInstrumentGroupData(obj);
     }
-   pub  fn generateInstrumentGroupData(obj: MetaDataResponse) -> Vec<True_GroupData> {
-        let res_itme: Vec<True_GroupData> = Vec::new();
+    pub fn generateInstrumentGroupData(obj: MetaDataResponse) -> Vec<True_GroupData> {
+        let mut res_itme: Vec<True_GroupData> = Vec::new();
         for item in obj.groups.iter() {
             if item.1.instruments.iter().len() > 0 {
                 //すべての空白を-で置き換えて小文字にする
@@ -23,11 +23,12 @@ impl Generate_TrueInstrumentData {
                     .unwrap()
                     .replace(&item.0, "-")
                     .to_string();
+
                 let group_name = String::new();
                 let pre_group_name = item.0.clone();
-                
-                let list_instruments: Vec<String> = Vec::new();
-                let inst_iter = match item.1.instruments {
+                let mut  list_instruments: Vec<String> = Vec::new();
+
+                match item.1.instruments.clone() {
                     Some(data) => {
                         for item_instrument in data {
                             list_instruments
@@ -55,7 +56,7 @@ impl Generate_TrueInstrumentData {
     でうまく処理できる可能性があるがここまでに時間を使いすぎたため次にjsonが効かなくなったら
     書き換える
     */
-   pub fn GetMetaData() -> MetaDataResponse {
+    pub fn GetMetaData() -> MetaDataResponse {
         let URI =
             "https://freeserv.dukascopy.com/2.0/index.php?path=common%2Finstruments".to_string();
         let referer = "https://freeserv.dukascopy.com/".to_string();
