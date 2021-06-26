@@ -14,7 +14,7 @@ impl True_Instrument {
     pub fn new(DataProviderName: String, Key: String, Name: String, Description: String, historicalFileName: String, Group: True_GroupData, metaData: True_InstrumentMetaData) -> Self { Self { DataProviderName, Key, Name, Description, historicalFileName, Group, metaData } }
 }
 
-#[derive(Debug,Default)]
+#[derive(Clone,Debug,Default)]
 pub struct True_GroupData {
     pub GroupID: String,
     pub GroupName: String,

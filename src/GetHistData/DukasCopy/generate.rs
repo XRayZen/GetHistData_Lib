@@ -76,7 +76,7 @@ impl Generate_TrueInstrumentData {
             let mut group = True_GroupData::default();
             match group_option.clone() {
                 Some(data) => {
-                    //group = data.clone();
+                    group = data.clone();
                     group.Tags = item.1.tag_list.clone();
                 }
                 None => (),
