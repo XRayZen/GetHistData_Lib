@@ -55,7 +55,7 @@ impl Generate_TrueInstrumentData {
     でうまく処理できる可能性があるがここまでに時間を使いすぎたため次にjsonが効かなくなったら
     書き換える
     */
-    fn GetMetaData() -> MetaDataResponse {
+   pub fn GetMetaData() -> MetaDataResponse {
         let URI =
             "https://freeserv.dukascopy.com/2.0/index.php?path=common%2Finstruments".to_string();
         let referer = "https://freeserv.dukascopy.com/".to_string();
