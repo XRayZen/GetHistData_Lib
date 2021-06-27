@@ -1,12 +1,20 @@
-use super::{
-    dates_normaliser::dates_normaliser, Option::dukas_option, TrueDataTypes::True_Instrument,
-};
+use std::default;
+
+use super::{Buffer_Fetcher::BufferObject, Option::dukas_option, TrueDataTypes::True_Instrument, dates_normaliser::dates_normaliser, generate::Generate_TrueInstrumentData, url_generator::{self, Output_URLGenerate}};
 
 pub struct GetHistoricRates {
     pub dukas_instruments: Vec<True_Instrument>,
 }
 
 impl GetHistoricRates {
+    pub fn Ready(&mut self) {
+        let res = Generate_TrueInstrumentData::Read_DukasInstrumentData();
+        if res.len() > 0 {
+            Generate_TrueInstrumentData::Generate();
+            let r2 = Generate_TrueInstrumentData::Read_DukasInstrumentData();
+            self.dukas_instruments = r2;
+        }
+    }
     pub fn GetHistoricRate(option: &dukas_option, TaskCount: u32) {
         let Date = dates_normaliser::TrueNormaliseDates(
             &option.instrument,
@@ -15,25 +23,19 @@ impl GetHistoricRates {
             &option.timefrme,
             &option.utcoffset,
         );
-//let urls=
-
+        let urls = url_generator::url_generator::generateUrls(
+            &option.instrument,
+            &option.timefrme,
+            &option.priceType,
+            &Date.adjustedFromDate,
+            &Date.adjustedToDate,
+        );
+let DownloadTicks =Self::GetDownloadData(urls, TaskCount);
 
     }
-}
 
-impl GetHistoricRates {
-    pub fn new(dukas_instruments: Vec<True_Instrument>) -> Self {
-        Self { dukas_instruments }
-    }
-
-    /// Set the get historic rates's dukas instruments.
-    pub fn set_dukas_instruments(&mut self, dukas_instruments: Vec<True_Instrument>) {
-        self.dukas_instruments = dukas_instruments;
-    }
-
-    /// Get a reference to the get historic rates's dukas instruments.
-    pub fn dukas_instruments(&self) -> &[True_Instrument] {
-        self.dukas_instruments.as_slice()
+    fn GetDownloadData(urls:Vec<Output_URLGenerate>,taskcount:u32)->Vec<BufferObject> {
+        let 
     }
 
     /// Get a mutable reference to the get historic rates's dukas instruments.

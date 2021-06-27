@@ -1,3 +1,4 @@
+use std::fmt;
 
 pub struct InstrumentMetaData
 {
@@ -17,7 +18,7 @@ pub struct Instrument {
     pub Description: String,
     pub historicalFileName: String,
 }
-
+#[derive(Debug,PartialEq, Eq,Clone)]
 pub enum DukasTimeFrame {
     tick,
     m1,
@@ -28,10 +29,13 @@ pub enum DukasTimeFrame {
     mn1,
 }
 
+
+#[derive(strum_macros::ToString,Clone)]
 pub enum PriceType {
     bid,
     ask,
 }
+
 
 pub enum Format {
     array,

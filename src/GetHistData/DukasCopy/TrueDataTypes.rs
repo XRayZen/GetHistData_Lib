@@ -53,7 +53,7 @@ pub struct True_InstrumentMetaData {
 impl True_InstrumentMetaData {
     pub fn new(decimalFactor: f64, startHourForTicks: String, startDayForMinuteCandles: String, startMonthForHourlyCandles: String, startYearForDailyCandles: String) -> Self { Self { decimalFactor, startHourForTicks, startDayForMinuteCandles, startMonthForHourlyCandles, startYearForDailyCandles } }
 }
-
+#[derive(Serialize,Deserialize,Debug,PartialEq, Eq)]
 pub enum TimeRangeType {
     hour,
     day,
