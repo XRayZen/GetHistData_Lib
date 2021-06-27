@@ -1,6 +1,10 @@
 use regex::Regex;
+use Util::read_json_to_currentdir_trueinstrument;
 
-use crate::GetHistData::Service::Util::{self, generateTrueIdNane};
+use crate::GetHistData::Service::{
+    FileService,
+    Util::{self, generateTrueIdNane},
+};
 
 use super::{
     GetWebData::{self, generate_data_types::MetaDataResponse},
@@ -14,7 +18,25 @@ impl Generate_TrueInstrumentData {
         let obj = Self::GetMetaData();
         let generateInstrumentGroupList = Self::generateInstrumentGroupData(&obj);
         let geneInstList = Self::GenerateInstrumentList(&obj, &generateInstrumentGroupList);
+        let res = Util::savejson_to_curdir_trueinstrument(
+            "instrument-list.json".to_string(),
+            geneInstList,
+        );
+        match res {
+            Ok(_) => (),
+            Err(error) => println!("Savejson Error! : {}", error),
+        }
     }
+    pub fn Read_DukasInstrumentData() -> Vec<True_Instrument> {
+        let res = read_json_to_currentdir_trueinstrument();
+        let mut data: Vec<True_Instrument>=Vec::default();
+        match res {
+            Ok(da) => data = da,
+            Err(error) => println!("ReadJson Error! : {}", error),
+        }
+       return data; 
+    }
+
     pub fn generateInstrumentGroupData(obj: &MetaDataResponse) -> Vec<True_GroupData> {
         let mut res_itme: Vec<True_GroupData> = Vec::new();
         for item in obj.groups.iter() {

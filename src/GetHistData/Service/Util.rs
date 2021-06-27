@@ -1,8 +1,14 @@
 pub mod date;
 pub mod range;
 
-use chrono::{DateTime, Duration, FixedOffset, NaiveDateTime, TimeZone, Utc};
+use std::error::{self, Error};
+
+use chrono::{DateTime, Duration, TimeZone, Utc};
 use regex::Regex;
+
+use crate::GetHistData::DukasCopy::TrueDataTypes::True_Instrument;
+
+use super::FileService;
 
 pub fn generateTrueIdNane(histname: &String, key: &String) -> String {
     if !histname.is_empty() {
@@ -31,9 +37,35 @@ pub fn ToISOString(time: &String) -> String {
 
 pub fn UnixTimeSecToDateTime(value: i64) -> DateTime<Utc> {
     //let dt = Utc.timestamp(value, 00);
-    let mut dates=
-    Utc.datetime_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S").unwrap();
-    let dt =
-    Utc.datetime_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S").unwrap();
+    let dt = Utc
+        .datetime_from_str("1970/01/01 00:00:00", "%Y/%m/%d %H:%M:%S")
+        .unwrap();
     dt + Duration::milliseconds(value)
+}
+
+pub fn read_json_to_currentdir_trueinstrument() -> Result<Vec<True_Instrument>, Box<dyn Error>> {
+    let dir = std::env::current_dir()
+        .unwrap()
+        .as_path()
+        .to_str()
+        .unwrap()
+        .to_string();
+    let text = FileService::FileService::read_text(&"instrument-list.json".to_string(), &dir)?;
+    let res: Vec<True_Instrument> = serde_json::from_str(&text)?;
+    Ok(res)
+}
+
+pub fn savejson_to_curdir_trueinstrument(
+    filename: String,
+    data: Vec<True_Instrument>,
+) -> Result<(), Box<dyn Error>> {
+    let dir = std::env::current_dir()
+        .unwrap()
+        .as_path()
+        .to_str()
+        .unwrap()
+        .to_string();
+    let d = serde_json::to_string(&data)?;
+    FileService::FileService::save_text(&filename, &dir, d)?;
+    Ok(())
 }
