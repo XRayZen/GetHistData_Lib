@@ -23,7 +23,7 @@ impl Generate_TrueInstrumentData {
             geneInstList,
         );
         match res {
-            Ok(_) => (),
+            Ok(_) => println!("Generste Success!"),
             Err(error) => println!("Savejson Error! : {}", error),
         }
     }
