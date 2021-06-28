@@ -124,7 +124,6 @@ impl url_generator {
                     item.clone(),
                     enddate.clone(),
                 ));
-                println!("temal count {}",&temp_all.len());
             }
         }
         return temp_all;
@@ -216,8 +215,6 @@ impl url_generator {
                 url.push_str("_candles_day_1.bi5");
             }
         }
-
-        println!("Generate Url : {}", &url);
         return url;
     }
 }

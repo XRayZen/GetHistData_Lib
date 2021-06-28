@@ -44,6 +44,9 @@ impl GetHistoricRates {
             &Date.adjustedToDate,
         );
         let DownloadTicks = Self::GetDownloadData(urls, TaskCount);
+        if !DownloadTicks.is_empty() {
+            
+        }
 
 
     }
@@ -80,11 +83,11 @@ impl GetHistoricRates {
                     &url.URL,
                     &url.NowDate,
                 );
-               /* Notify::ReportProgress(
+                Notify::ReportProgress(
                     "ヒストリカルデータのダウンロード".to_string(),
-                    *total_c,
-                    *count,
-                );*/
+                    &total_c.clone(),
+                    &count.clone(),
+                );
                 data = txt;
             }
             Err(error) => {
