@@ -80,11 +80,11 @@ impl GetHistoricRates {
                     &url.URL,
                     &url.NowDate,
                 );
-                Notify::ReportProgress(
+               /* Notify::ReportProgress(
                     "ヒストリカルデータのダウンロード".to_string(),
                     *total_c,
                     *count,
-                );
+                );*/
                 data = txt;
             }
             Err(error) => {
