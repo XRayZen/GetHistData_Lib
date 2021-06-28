@@ -63,6 +63,6 @@ pub enum TimeRangeType {
 
 impl TimeRangeType {
     pub fn default()->Self{
-     self::TimeRangeType::year
+     self::TimeRangeType::hour
     }
 }

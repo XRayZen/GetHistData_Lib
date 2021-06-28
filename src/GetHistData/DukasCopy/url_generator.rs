@@ -14,10 +14,10 @@ pub mod GetURL;
 
 #[derive(Clone)]
 pub struct Output_URLGenerate {
-   pub  InstrumentKeyName: String,
-   pub  URL: String,
-   pub  Timeframe: DukasTimeFrame,
-   pub  PriceType: Price_Type,
+    pub InstrumentKeyName: String,
+    pub URL: String,
+    pub Timeframe: DukasTimeFrame,
+    pub PriceType: Price_Type,
     pub NowDate: DateTime<Utc>,
     pub EndDate: DateTime<Utc>,
 }
@@ -58,7 +58,7 @@ impl url_generator {
             &pricetype,
             &rangetype,
             &startdate,
-            &enddate,
+            &dateLimit,
             &timeframe,
         );
         return constructUrls;
@@ -77,20 +77,15 @@ impl url_generator {
 
         loop {
             dates.push(tempStartDate.clone());
-            tempStartDate = date::date::GetStartOfUtc(&startdate, rangetype);
-            if (&tempStartDate > enddate) == false {
+            tempStartDate = date::date::GetStartOfUtc_offset(&tempStartDate, rangetype, 1);
+            if (&tempStartDate > enddate) == true {
                 break;
             }
         }
-      /*  while (&tempStartDate < enddate) == false {
-            dates.push(tempStartDate.clone());
-            tempStartDate = date::date::GetStartOfUtc(&startdate, rangetype);
-            
-        }*/
 
         let mut temp_all: Vec<Output_URLGenerate> = Vec::new();
         let lastitem = &dates.last().unwrap().clone();
-        let lastitem=lastitem.clone();
+        let lastitem = lastitem.clone();
         for item in dates {
             if (lastitem == item) & date::date::IsCurrentRange(&rangetype, &item) {
                 let ranges = vec![
@@ -99,11 +94,7 @@ impl url_generator {
                     TimeRangeType::day,
                     TimeRangeType::hour,
                 ];
-                let lookupIndex = &ranges
-                    .iter()
-                    .position(|x| x == rangetype)
-                    .unwrap()
-                    .clone();
+                let lookupIndex = &ranges.iter().position(|x| x == rangetype).unwrap().clone();
                 let lowerRangeData = &ranges[lookupIndex + 1];
                 let temp = Self::getConstructor(
                     &instrument,
@@ -133,6 +124,7 @@ impl url_generator {
                     item.clone(),
                     enddate.clone(),
                 ));
+                println!("temal count {}",&temp_all.len());
             }
         }
         return temp_all;

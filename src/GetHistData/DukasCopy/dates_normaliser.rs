@@ -41,7 +41,7 @@ impl dates_normaliser {
         }
         let mut minFromDate = Util::ISOStringToDateTime(&minFromIsoDate);
         let mut  maxToDate = Utc::now();
-        if utcoffset == &i32::default() {
+        if utcoffset != &i32::default() {
             Start = Start + Duration::minutes(i64::from(utcoffset.clone()));
             End = End + Duration::minutes(i64::from(utcoffset.clone()));
         }
@@ -58,7 +58,7 @@ impl dates_normaliser {
         min: &'a  DateTime<Utc>,
         max: &'a  DateTime<Utc>,
     ) -> &'a  DateTime<Utc> {
-        if date > max {
+        if date < max {
             if date < min {
                 min
             } else {

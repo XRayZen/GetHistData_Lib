@@ -59,8 +59,8 @@ impl range {
                 res = TimeRangeType::hour;
             }
         } else if (timeframe == &DukasTimeFrame::m30)
-            & (timeframe == &DukasTimeFrame::m15)
-            & (timeframe == &DukasTimeFrame::m1)
+            || (timeframe == &DukasTimeFrame::m15)
+            || (timeframe == &DukasTimeFrame::m1)
         {
             if !isCurrent.day {
                 res = TimeRangeType::day;

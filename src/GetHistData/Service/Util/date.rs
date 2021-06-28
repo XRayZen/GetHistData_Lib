@@ -52,12 +52,13 @@ impl date {
 impl date {
     pub fn getYMDH(ConvertUTC: &DateTime<Utc>) -> temp_Res_isCurrentdate {
         temp_Res_isCurrentdate::new(
-            ConvertUTC.year(),
-            ConvertUTC.month(),
-            ConvertUTC.day(),
-            ConvertUTC.hour(),
+            ConvertUTC.year().clone(),
+            ConvertUTC.month().clone(),
+            ConvertUTC.day().clone(),
+            ConvertUTC.hour().clone(),
         )
     }
+    
     pub fn IsCurrentRange(rangeType: &TimeRangeType, datetime: &DateTime<Utc>) -> bool {
         let IsCurrent = Self::getIsCurrentObj(&datetime);
         match rangeType {
@@ -67,6 +68,7 @@ impl date {
             _ => false,
         }
     }
+
     pub fn GetStartOfUtc(date: &DateTime<Utc>, period: &TimeRangeType) -> DateTime<Utc> {
         let ymdh = Self::getYMDH(date);
         let mut startOfUtc = Utc::now();
@@ -88,22 +90,24 @@ impl date {
         }
         startOfUtc
     }
+
     pub fn GetStartOfUtc_offset(
         date: &DateTime<Utc>,
         period: &TimeRangeType,
         offset: i32,
     ) -> DateTime<Utc> {
+        let offset=offset as i64;
         let ymdh = Self::getYMDH(date);
         match period {
             TimeRangeType::hour => {
                 Utc.ymd(ymdh.year, ymdh.month, ymdh.day)
                     .and_hms(ymdh.hour, 00, 00)
-                    + Duration::hours(offset.into())
+                    + Duration::hours(offset)
             }
             TimeRangeType::day => {
                 Utc.ymd(ymdh.year, ymdh.month, ymdh.day)
                 .and_hms(00, 00, 00)
-                    + Duration::days(offset.into())
+                    + Duration::days(offset)
             }
             //月に加算できるのがこれしかないがこれでいいのか疑問
             TimeRangeType::month => {
@@ -112,8 +116,7 @@ impl date {
                 Standard_Lib::Util::TimeUtil::add_onemonth(&temp)
             }
             TimeRangeType::year => {
-                let y = ymdh.year;
-                Utc.ymd(y + 1, ymdh.month, 1).and_hms(00, 00, 00)
+                Utc.ymd(ymdh.year, 1, 1).and_hms(00, 00, 00)
             }
         }
     }
