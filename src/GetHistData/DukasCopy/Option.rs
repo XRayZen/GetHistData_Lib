@@ -15,3 +15,7 @@ pub struct dukas_option{
     pub priceType:PriceType,
     pub utcoffset:i32
 }
+
+impl dukas_option {
+    pub fn new(instrument: True_Instrument, Dates: Dates, timefrme: DukasTimeFrame, priceType: PriceType, utcoffset: i32) -> Self { Self { instrument, Dates, timefrme, priceType, utcoffset } }
+}

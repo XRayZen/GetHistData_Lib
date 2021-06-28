@@ -11,11 +11,13 @@ use super::{
 };
 
 pub mod GetURL;
+
+#[derive(Clone)]
 pub struct Output_URLGenerate {
-    InstrumentKeyName: String,
-    URL: String,
-    Timeframe: DukasTimeFrame,
-    PriceType: PriceType,
+   pub  InstrumentKeyName: String,
+   pub  URL: String,
+   pub  Timeframe: DukasTimeFrame,
+   pub  PriceType: PriceType,
     pub NowDate: DateTime<Utc>,
     pub EndDate: DateTime<Utc>,
 }

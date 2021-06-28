@@ -7,3 +7,4 @@ pub mod url_generator;
 pub mod generate;
 pub mod GetWebData;
 pub mod Buffer_Fetcher;
+pub mod Process;
