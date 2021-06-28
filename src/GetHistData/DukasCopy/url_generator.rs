@@ -75,7 +75,7 @@ impl url_generator {
         let mut dates: Vec<DateTime<Utc>> = Vec::new();
         let mut tempStartDate = date::date::GetStartOfUtc(&startdate, &rangetype);
 
-        while (&tempStartDate < enddate) == false {
+        while (&tempStartDate < enddate) == true {
             dates.push(tempStartDate.clone());
             tempStartDate = date::date::GetStartOfUtc(&startdate, rangetype);
         }
