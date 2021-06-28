@@ -1,9 +1,9 @@
-use chrono::{DateTime, Utc};
-use rayon::{current_thread_index, prelude::*};
+
+use rayon::{prelude::*};
 use std::{sync::{Arc, Mutex},};
 use Standard_Lib::Util::NotifyUtil::{failed_or_sucess, Notify};
 
-use crate::GetHistData;
+
 
 use super::{
     dates_normaliser::dates_normaliser,
@@ -39,21 +39,21 @@ impl GetHistoricRates {
         let urls = url_generator::url_generator::generateUrls(
             &option.instrument,
             &option.timefrme,
-            &option.priceType,
+            &option.price_type,
             &Date.adjustedFromDate,
             &Date.adjustedToDate,
         );
         let DownloadTicks = Self::GetDownloadData(urls, TaskCount);
-        
+
     }
 
     fn GetDownloadData(urls: Vec<Output_URLGenerate>, taskcount: u32) -> Vec<BufferObject> {
         let mut result: Vec<BufferObject> = Vec::new();
-        let mut counter = Arc::new(Mutex::new(0));
-        let mut urls_count = Arc::new(Mutex::new(urls.len() as i32));
+        let counter = Arc::new(Mutex::new(0));
+        let urls_count = Arc::new(Mutex::new(urls.len() as i32));
         urls.par_iter()
-            .map(|&x| {
-                return Self::task_download(&x, counter, urls_count);
+            .map(|x| {
+                return Self::task_download(&x, &counter, &urls_count);
             })
             .collect_into_vec(&mut result);
         return result;
@@ -61,8 +61,8 @@ impl GetHistoricRates {
 
     fn task_download(
         url: &Output_URLGenerate,
-        counter: Arc<Mutex<i32>>,
-        urls_count: Arc<Mutex<i32>>,
+        counter: &Arc<Mutex<i32>>,
+        urls_count: &Arc<Mutex<i32>>,
     ) -> BufferObject {
         let mut fail = false;
         let mut data: Vec<u8> = Vec::new();
@@ -91,7 +91,7 @@ impl GetHistoricRates {
                 println!("GetDownloadData Error! : {}", error);
             }
         }
-        let r = BufferObject::new(fail, url.URL, data, url.clone());
+        let r = BufferObject::new(fail, url.URL.clone(), data, url.clone());
         return r;
     }
 

@@ -60,3 +60,9 @@ pub enum TimeRangeType {
     month,
     year,
 }
+
+impl TimeRangeType {
+    pub fn default()->Self{
+     self::TimeRangeType::year
+    }
+}

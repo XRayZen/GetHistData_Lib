@@ -31,7 +31,7 @@ pub enum DukasTimeFrame {
 
 
 #[derive(strum_macros::ToString,Clone)]
-pub enum PriceType {
+pub enum Price_Type {
     bid,
     ask,
 }

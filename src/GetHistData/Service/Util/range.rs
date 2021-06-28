@@ -39,7 +39,7 @@ impl range {
         //今年の今月だったら時間軸の月（月足）は使えない<br/>
         // 今月の今日だったら時間軸の日（日足）は使えない<br/>
         // 今日の今の時間だったら時間軸の時間（時間足）は使えない<br/>
-        let res = TimeRangeType::default();
+        let mut res = TimeRangeType::default();
         if (timeframe == &DukasTimeFrame::mn1) || (timeframe == &DukasTimeFrame::d1) {
             if !isCurrent.year {
                 res = TimeRangeType::year;

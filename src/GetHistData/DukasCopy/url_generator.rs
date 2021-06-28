@@ -1,12 +1,12 @@
 use chrono::{DateTime, Utc};
 
 use crate::GetHistData::Service::Util::{
-    date::{self, date},
+    date::{self},
     range::range,
 };
 
 use super::{
-    DataTypes::{DukasTimeFrame, PriceType},
+    DataTypes::{DukasTimeFrame, Price_Type},
     TrueDataTypes::{TimeRangeType, True_Instrument},
 };
 
@@ -17,7 +17,7 @@ pub struct Output_URLGenerate {
    pub  InstrumentKeyName: String,
    pub  URL: String,
    pub  Timeframe: DukasTimeFrame,
-   pub  PriceType: PriceType,
+   pub  PriceType: Price_Type,
     pub NowDate: DateTime<Utc>,
     pub EndDate: DateTime<Utc>,
 }
@@ -27,7 +27,7 @@ impl Output_URLGenerate {
         InstrumentKeyName: String,
         URL: String,
         Timeframe: DukasTimeFrame,
-        PriceType: PriceType,
+        PriceType: Price_Type,
         NowDate: DateTime<Utc>,
         EndDate: DateTime<Utc>,
     ) -> Self {
@@ -47,7 +47,7 @@ impl url_generator {
     pub fn generateUrls(
         instrumrnt: &True_Instrument,
         timeframe: &DukasTimeFrame,
-        pricetype: &PriceType,
+        pricetype: &Price_Type,
         startdate: &DateTime<Utc>,
         enddate: &DateTime<Utc>,
     ) -> Vec<Output_URLGenerate> {
@@ -66,7 +66,7 @@ impl url_generator {
 
     fn getConstructor(
         instrument: &True_Instrument,
-        pricetype: &PriceType,
+        pricetype: &Price_Type,
         rangetype: &TimeRangeType,
         startdate: &DateTime<Utc>,
         enddate: &DateTime<Utc>,
@@ -81,8 +81,9 @@ impl url_generator {
         }
 
         let mut temp_all: Vec<Output_URLGenerate> = Vec::new();
+        let lastitem = &dates.last().unwrap().clone();
+        let lastitem=lastitem.clone();
         for item in dates {
-            let lastitem = dates.last().unwrap().clone();
             if (lastitem == item) & date::date::IsCurrentRange(&rangetype, &item) {
                 let ranges = vec![
                     TimeRangeType::year,
@@ -90,12 +91,12 @@ impl url_generator {
                     TimeRangeType::day,
                     TimeRangeType::hour,
                 ];
-                let lookupIndex = ranges
+                let lookupIndex = &ranges
                     .iter()
-                    .position(|&x| &x == rangetype)
+                    .position(|x| x == rangetype)
                     .unwrap()
                     .clone();
-                let lowerRangeData = ranges[lookupIndex + 1];
+                let lowerRangeData = &ranges[lookupIndex + 1];
                 let temp = Self::getConstructor(
                     &instrument,
                     &pricetype,
@@ -171,12 +172,12 @@ impl url_generator {
         instrument: &True_Instrument,
         date: &DateTime<Utc>,
         rangetype: &TimeRangeType,
-        pricetype: &PriceType,
+        pricetype: &Price_Type,
     ) -> String {
         let URL_ROOT = "https://datafeed.dukascopy.com/datafeed";
         let ymdh = date::date::getYMDH(&date);
 
-        let url = String::new();
+        let mut url = String::new();
         url.push_str(URL_ROOT.clone());
         url.push_str("/");
         url.push_str(&instrument.Key.clone().as_str());
