@@ -23,7 +23,7 @@ mod tests {
         }
         let option = dukas_option::new(
             inst,
-            Utc::now()-Duration::days(80),
+            Utc::now()-Duration::days(10),
             Utc::now(),
             DukasTimeFrame::tick,
             DukasCopy::DataTypes::Price_Type::ask,
@@ -43,7 +43,6 @@ mod tests {
             &Date.adjustedFromDate,
             &Date.adjustedToDate,
         );
-        let DownloadTicks =GetHistoricRates::GetDownloadData(urls, 10);
-    
+        //let DownloadTicks =GetHistoricRates::GetDownloadData(urls, 10);
     }
 }
