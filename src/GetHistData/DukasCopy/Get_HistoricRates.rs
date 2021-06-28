@@ -45,6 +45,7 @@ impl GetHistoricRates {
         );
         let DownloadTicks = Self::GetDownloadData(urls, TaskCount);
 
+        
     }
 
     fn GetDownloadData(urls: Vec<Output_URLGenerate>, taskcount: u32) -> Vec<BufferObject> {
