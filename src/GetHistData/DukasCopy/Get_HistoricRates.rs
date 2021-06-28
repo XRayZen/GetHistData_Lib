@@ -1,9 +1,8 @@
-
-use rayon::{prelude::*};
-use std::{sync::{Arc, Mutex},};
+use rayon::prelude::*;
+use std::sync::{Arc, Mutex};
 use Standard_Lib::Util::NotifyUtil::{failed_or_sucess, Notify};
 
-
+use crate::GetHistData::Service::Util;
 
 use super::{
     dates_normaliser::dates_normaliser,
@@ -45,10 +44,15 @@ impl GetHistoricRates {
         );
         let DownloadTicks = Self::GetDownloadData(urls, TaskCount);
         if !DownloadTicks.is_empty() {
+            let min=DownloadTicks.par_iter().min_by_key(|n|n.Output_URLGenerate.NowDate);
+            let max=DownloadTicks.par_iter().max_by_key(|n|n.Output_URLGenerate.NowDate);
+            //TODO:近いうちにノッティファイにリポートログ機能を追加する
+            //Notify::
+            //Debug用にローカルにティックを保存しておく
+            Util::save_json_to_curdir_tick("Test_RawTickData.json".to_string(), DownloadTicks.clone());
             
+
         }
-
-
     }
 
     pub fn GetDownloadData(urls: Vec<Output_URLGenerate>, taskcount: u32) -> Vec<BufferObject> {
@@ -60,6 +64,8 @@ impl GetHistoricRates {
                 return Self::task_download(&x, &counter, &urls_count);
             })
             .collect_into_vec(&mut result);
+        result.par_sort();
+        result.retain(|x|x.get_download==true);
         return result;
     }
 
@@ -72,29 +78,37 @@ impl GetHistoricRates {
         let mut data: Vec<u8> = Vec::new();
         let referer = "https://freeserv.dukascopy.com/".to_string();
         let donwnload_res = GetWeb::GetWebBytes(&url.URL, &referer);
+        let mut data: Vec<u8> = Vec::new();
         match donwnload_res {
             Ok(txt) => {
-                let mut count = counter.lock().unwrap();
-                *count += 1;
-                let total_c = urls_count.lock().unwrap();
-                Notify::report_on_download(
-                    failed_or_sucess::sucess,
-                    &"DukasCopy".to_string(),
-                    &url.URL,
-                    &url.NowDate,
-                );
-                Notify::ReportProgress(
-                    "ヒストリカルデータのダウンロード".to_string(),
-                    &total_c.clone(),
-                    &count.clone(),
-                );
-                data = txt;
+                if !txt.is_empty() {
+                    data = txt; fail = true;
+                } else {
+                   fail=false;
+                }
             }
             Err(error) => {
-                fail = true;
+                fail = false;
                 println!("GetDownloadData Error! : {}", error);
             }
         }
+        if fail {
+            let mut count = counter.lock().unwrap();
+            *count += 1;
+            let total_c = urls_count.lock().unwrap();
+            Notify::report_on_download(
+                failed_or_sucess::sucess,
+                &"DukasCopy".to_string(),
+                &url.URL,
+                &url.NowDate,
+            );
+            Notify::ReportProgress(
+                "ヒストリカルデータのダウンロード".to_string(),
+                &total_c.clone(),
+                &count.clone(),
+            );
+        }
+
         let r = BufferObject::new(fail, url.URL.clone(), data, url.clone());
         return r;
     }

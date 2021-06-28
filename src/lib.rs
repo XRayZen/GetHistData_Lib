@@ -43,6 +43,6 @@ mod tests {
             &Date.adjustedFromDate,
             &Date.adjustedToDate,
         );
-        //let DownloadTicks =GetHistoricRates::GetDownloadData(urls, 10);
+        let DownloadTicks =GetHistoricRates::GetDownloadData(urls, 10);
     }
 }

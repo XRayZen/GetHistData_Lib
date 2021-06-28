@@ -1,6 +1,7 @@
 use super::url_generator::Output_URLGenerate;
+use serde::{Deserialize, Serialize};
 
-
+#[derive(Clone,PartialEq, Eq, PartialOrd, Ord,Serialize,Deserialize)]
 pub struct BufferObject {
     pub get_download:bool,
     pub url: String,

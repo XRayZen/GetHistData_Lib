@@ -11,8 +11,8 @@ use super::{
 };
 
 pub mod GetURL;
-
-#[derive(Clone)]
+use serde::{Deserialize, Serialize};
+#[derive(Serialize,Deserialize,Clone,PartialEq, Eq, PartialOrd, Ord)]
 pub struct Output_URLGenerate {
     pub InstrumentKeyName: String,
     pub URL: String,

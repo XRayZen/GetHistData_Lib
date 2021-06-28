@@ -6,7 +6,7 @@ use std::error::{self, Error};
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use regex::Regex;
 
-use crate::GetHistData::DukasCopy::TrueDataTypes::True_Instrument;
+use crate::GetHistData::DukasCopy::{Buffer_Fetcher, TrueDataTypes::True_Instrument};
 
 use super::FileService;
 
@@ -68,4 +68,26 @@ pub fn savejson_to_curdir_trueinstrument(
     let d = serde_json::to_string(&data)?;
     FileService::FileService::save_text(&filename, &dir, d)?;
     Ok(())
+}
+pub fn save_json_to_curdir_tick(filename: String,data: Vec<Buffer_Fetcher::BufferObject>,) {
+    let dir = std::env::current_dir()
+    .unwrap()
+    .as_path()
+    .to_str()
+    .unwrap()
+    .to_string();
+let d = serde_json::to_string(&data).unwrap();
+FileService::FileService::save_text(&filename, &dir, d).unwrap();
+
+}
+pub fn read_json_to_curdir_tick(filename: String,)->Vec<Buffer_Fetcher::BufferObject> {
+    let dir = std::env::current_dir()
+    .unwrap()
+    .as_path()
+    .to_str()
+    .unwrap()
+    .to_string();
+    let text = FileService::FileService::read_text(&filename, &dir).unwrap();
+    let d=serde_json::from_str(text.as_str()).unwrap();
+    d
 }

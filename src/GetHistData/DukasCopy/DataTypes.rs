@@ -1,5 +1,5 @@
-use std::fmt;
 
+use serde::{Deserialize, Serialize};
 pub struct InstrumentMetaData
 {
     pub  name :String,
@@ -18,7 +18,7 @@ pub struct Instrument {
     pub Description: String,
     pub historicalFileName: String,
 }
-#[derive(Debug,PartialEq, Eq,Clone)]
+#[derive(Serialize,Deserialize,Debug,PartialEq, Eq,Clone,PartialOrd, Ord)]
 pub enum DukasTimeFrame {
     tick,
     m1,
@@ -30,7 +30,7 @@ pub enum DukasTimeFrame {
 }
 
 
-#[derive(strum_macros::ToString,Clone)]
+#[derive(Serialize,Deserialize,strum_macros::ToString,Clone,PartialEq, Eq, PartialOrd, Ord)]
 pub enum Price_Type {
     bid,
     ask,
