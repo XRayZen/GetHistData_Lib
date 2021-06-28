@@ -45,10 +45,10 @@ impl GetHistoricRates {
         );
         let DownloadTicks = Self::GetDownloadData(urls, TaskCount);
 
-        
+
     }
 
-    fn GetDownloadData(urls: Vec<Output_URLGenerate>, taskcount: u32) -> Vec<BufferObject> {
+    pub fn GetDownloadData(urls: Vec<Output_URLGenerate>, taskcount: u32) -> Vec<BufferObject> {
         let mut result: Vec<BufferObject> = Vec::new();
         let counter = Arc::new(Mutex::new(0));
         let urls_count = Arc::new(Mutex::new(urls.len() as i32));
