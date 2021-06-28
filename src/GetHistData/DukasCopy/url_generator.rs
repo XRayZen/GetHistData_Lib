@@ -78,7 +78,7 @@ impl url_generator {
         loop {
             dates.push(tempStartDate.clone());
             tempStartDate = date::date::GetStartOfUtc(&startdate, rangetype);
-            if (&tempStartDate < enddate) == false {
+            if (&tempStartDate > enddate) == false {
                 break;
             }
         }
