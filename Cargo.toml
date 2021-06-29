@@ -16,4 +16,6 @@ regex="1"
 strum={version="0.21",features=["derive"]}
 strum_macros="0.21"
 rayon="1.5"
+xz2="0.1.6"
+byteorder="1.4.3"
 Standard_Lib={git="https://github.com/XRayZen/Standard_Lib"}
