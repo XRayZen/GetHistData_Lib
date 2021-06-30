@@ -1,6 +1,9 @@
 use rayon::prelude::*;
-use std::sync::{Arc, Mutex};
-use Standard_Lib::Util::NotifyUtil::{failed_or_sucess, Notify};
+use std::{default, sync::{Arc, Mutex}};
+use Standard_Lib::{
+    datas::market::Symbol,
+    Util::NotifyUtil::{failed_or_sucess, Notify},
+};
 
 use crate::GetHistData::Service::Util;
 
@@ -11,6 +14,7 @@ use super::{
     Buffer_Fetcher::BufferObject,
     GetWebData::GetWeb,
     Option::dukas_option,
+    Process::ProcessData::Process,
     TrueDataTypes::True_Instrument,
 };
 
@@ -27,7 +31,7 @@ impl GetHistoricRates {
             self.dukas_instruments = r2;
         }
     }
-    pub fn GetHistoricRate(option: &dukas_option, TaskCount: u32) {
+    pub fn GetHistoricRate(option: &dukas_option, TaskCount: u32) -> Symbol {
         let Date = dates_normaliser::TrueNormaliseDates(
             &option.instrument,
             &option.Dates.from,
@@ -44,15 +48,23 @@ impl GetHistoricRates {
         );
         let DownloadTicks = Self::GetDownloadData(urls, TaskCount);
         if !DownloadTicks.is_empty() {
-            let min=DownloadTicks.par_iter().min_by_key(|n|n.Output_URLGenerate.NowDate);
-            let max=DownloadTicks.par_iter().max_by_key(|n|n.Output_URLGenerate.NowDate);
+            let min = DownloadTicks
+                .par_iter()
+                .min_by_key(|n| n.Output_URLGenerate.NowDate);
+            let max = DownloadTicks
+                .par_iter()
+                .max_by_key(|n| n.Output_URLGenerate.NowDate);
             //TODO:近いうちにノッティファイにリポートログ機能を追加する
             //Notify::
             //Debug用にローカルにティックを保存しておく
-            Util::save_json_to_curdir_tick("Test_RawTickData.json".to_string(), DownloadTicks.clone());
-            
-
+            Util::save_json_to_curdir_tick(
+                "Test_RawTickData.json".to_string(),
+                DownloadTicks.clone(),
+            );
+            let pro_res = Process(DownloadTicks, option.instrument.clone());
+            return pro_res;
         }
+        return Symbol::Default_Symbol();
     }
 
     pub fn GetDownloadData(urls: Vec<Output_URLGenerate>, taskcount: u32) -> Vec<BufferObject> {
@@ -65,7 +77,7 @@ impl GetHistoricRates {
             })
             .collect_into_vec(&mut result);
         result.par_sort();
-        result.retain(|x|x.get_download==true);
+        result.retain(|x| x.get_download == true);
         return result;
     }
 
@@ -74,42 +86,42 @@ impl GetHistoricRates {
         counter: &Arc<Mutex<i32>>,
         urls_count: &Arc<Mutex<i32>>,
     ) -> BufferObject {
-        let mut fail = false;
-        let mut data: Vec<u8> = Vec::new();
+        let mut success = false;
         let referer = "https://freeserv.dukascopy.com/".to_string();
         let donwnload_res = GetWeb::GetWebBytes(&url.URL, &referer);
         let mut data: Vec<u8> = Vec::new();
         match donwnload_res {
             Ok(txt) => {
                 if !txt.is_empty() {
-                    data = txt; fail = true;
+                    data = txt;
+                    success = true;
                 } else {
-                   fail=false;
+                    success = false;
                 }
             }
             Err(error) => {
-                fail = false;
+                success = false;
                 println!("GetDownloadData Error! : {}", error);
             }
         }
-        if fail {
-            let mut count = counter.lock().unwrap();
-            *count += 1;
-            let total_c = urls_count.lock().unwrap();
+        if success {
             Notify::report_on_download(
                 failed_or_sucess::sucess,
                 &"DukasCopy".to_string(),
                 &url.URL,
                 &url.NowDate,
             );
-            Notify::ReportProgress(
-                "ヒストリカルデータのダウンロード".to_string(),
-                &total_c.clone(),
-                &count.clone(),
-            );
         }
-
-        let r = BufferObject::new(fail, url.URL.clone(), data, url.clone());
+        let mut count = *counter.lock().unwrap();
+        count += 1;
+        let count_ = count as f64;
+        let total_c = *urls_count.lock().unwrap() as f64;
+        Notify::report_progress(
+            "ヒストリカルデータのダウンロード".to_string(),
+            &total_c,
+            &count_,
+        );
+        let r = BufferObject::new(success, url.URL.clone(), data, url.clone());
         return r;
     }
 

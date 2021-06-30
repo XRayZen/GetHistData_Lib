@@ -1,24 +1,31 @@
 use core::f32;
 use std::{
-    io::{BufReader, Cursor, Read, Seek},
+    io::{Cursor, Read, Seek},
     sync::{Arc, Mutex},
 };
 
-use byteorder::{BigEndian, ReadBytesExt};
+use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 use chrono::{DateTime, Datelike, Duration, TimeZone, Timelike, Utc};
-use rayon::iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator};
-use xz2::read::XzDecoder;
-use Standard_Lib::{Util::NotifyUtil::Notify, datas::market::{AssetType, BarData, Symbol, Tick}};
+use lzma_rs::{lzma2_decompress, lzma_decompress, lzma_decompress_with_options};
+use rayon::{
+    iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator},
+    slice::ParallelSliceMut,
+};
+use xz2::{read::XzDecoder, stream};
+use Standard_Lib::{
+    datas::market::{AssetType, Symbol, Tick},
+    Util::NotifyUtil::Notify,
+};
 
 use crate::GetHistData::DukasCopy::{Buffer_Fetcher::BufferObject, TrueDataTypes::True_Instrument};
 
 pub mod Decompress;
 
 pub fn Process(response: Vec<BufferObject>, instrument: True_Instrument) -> Symbol {
-    let raw_res: Vec<BufferObject> = Vec::new();
     let mut res_ticks: Vec<Vec<Tick>> = Vec::new();
     let mut counter = Arc::new(Mutex::new(0));
-    let totalcount = response.len() as f64;
+    let totalcount_ = response.len() as f64;
+    let mut totalcount = Arc::new(Mutex::new(totalcount_));
     response
         .par_iter()
         .map(|x| {
@@ -27,18 +34,23 @@ pub fn Process(response: Vec<BufferObject>, instrument: True_Instrument) -> Symb
                 .ymd(t.year(), t.month(), t.day())
                 .and_hms(t.hour(), 00, 00);
             let mut res: Vec<Tick> = Vec::new();
-            if x.get_download {
+            if (x.get_download) & (x.Buffer.len() > 0) {
                 let mut buf_c = counter.lock().unwrap();
                 *buf_c += 1;
+                let n = *buf_c as f64;
                 let mut temp = self::DecompressDukasTickToRawTick(
-                    x.Buffer,
+                    x.Buffer.clone(),
                     instrument.metaData.decimalFactor.clone(),
                     &basedatetime,
+                    &instrument.Name,
                 );
-                let n = *buf_c as f64;
+                let buf_b = totalcount.lock().unwrap();
+                let b = *buf_b as f64;
                 //進捗を報告するが今は省略
-                Notify::report_progress("汎用的なティックに変換".to_string(), &totalcount, &n);
-                res.append(&mut temp);
+                Notify::report_progress("汎用的なティックに変換".to_string(), &b, &n);
+                for item in temp {
+                    res.push(item);
+                }
             }
             return res;
         })
@@ -46,59 +58,111 @@ pub fn Process(response: Vec<BufferObject>, instrument: True_Instrument) -> Symb
     let mut result_ticks: Vec<Tick> = Vec::new();
     //解答されたティックをまとめる
     for item in res_ticks {
-        result_ticks.append(&mut item);
+        let mut temp: Vec<Tick> = Vec::new();
+        for tick in item {
+            temp.push(tick);
+        }
+        result_ticks.append(&mut temp);
     }
     return CreateSymbolInTick(result_ticks, &instrument);
 }
 
 fn CreateSymbolInTick(res_Ticks: Vec<Tick>, instrument: &True_Instrument) -> Symbol {
     let mut Name = "".to_string();
-    let assettype=self::ConvertAssetType(&instrument);
+    let assettype = self::ConvertAssetType(&instrument);
     //インデックスなどを汎用的な名前に変換したいがまだ検討中
     match assettype {
-        AssetType::Forex => Name=instrument.Key.clone(),
+        AssetType::Forex => Name = instrument.Key.clone(),
         AssetType::Metal => (),
         AssetType::CFD => (),
         AssetType::Stock => (),
         AssetType::Crypt => (),
         AssetType::Indicator => (),
     }
-    let mut  temp=Symbol::default();
-    temp.name=Name;temp.ticks=res_Ticks;
+    let mut temp = Symbol::Default_Symbol();
+    temp.name = Name;
+    //debg_view(&res_Ticks);
+    temp.ticks = Tick_Sort(res_Ticks); //独自にソートするメソッドを作る必要あり
+    debg_view(&temp.ticks);
     return temp;
 }
 
-fn ConvertAssetType(instrument:&True_Instrument)->AssetType {
+fn Tick_Sort(ticks: Vec<Tick>) -> Vec<Tick> {
+    let mut res: Vec<Tick> = Vec::new();
+    let mut cur = ticks[0].time.clone();
+    res.push(ticks[0].clone());
+    let count=&ticks.len();
+    while &res.len() != &ticks.len() {
+        for tick in &ticks {
+            if cur < tick.time {
+                let k = tick.clone();
+                res.push(k.clone());
+                cur = tick.time;
+                println!("tick count: {} Time : {}", &res.len(), &cur);
+            }
+        }
+        println!("res len :{} ticks len:{}",&res.len(),count);
+    }
+    return res;
+}
+
+
+fn ConvertAssetType(instrument: &True_Instrument) -> AssetType {
     //今はFXのみ返す
     if instrument.Group.GroupName.contains("FX") {
         return AssetType::Forex;
-    }else {
+    } else {
         return AssetType::CFD;
     }
 }
 
+fn decompress_lzmars(data: Vec<u8>, Name: &String, time: &DateTime<Utc>) -> Vec<u8> {
+    let mut f = std::io::BufReader::new(data.as_slice());
+    let mut decomp: Vec<u8> = Vec::new();
+    let t = lzma_decompress(&mut f, &mut decomp);
+    match t {
+        Ok(_) => (),
+        Err(err) => println!("Lzma Error! Name:[{}] Time:[{}] Msg:[{}]", Name, time, &err),
+    }
+    decomp
+}
+
 /// 圧縮されたティックを解凍して復元する
-pub fn DecompressDukasTickToRawTick(
+fn DecompressDukasTickToRawTick(
     data: Vec<u8>,
     decimalfactor: f64,
     basetime: &DateTime<Utc>,
+    Name: &String,
 ) -> Vec<Tick> {
-    let t = XzDecoder::new(data.as_slice());
     let mut dec: Vec<u8> = Vec::new();
-    t.read_to_end(&mut dec);
-    let cur = Cursor::new(dec);
-    let r: Vec<Tick> = Vec::new();
-    while cur.position() != dec.len() as u64 {
+    let mut g = decompress_lzmars(data, &Name, &basetime);
+    //t.read_to_end(&mut dec);
+    dec.append(&mut g);
+    let len = dec.len().clone() as u64;
+    let mut cur = Cursor::new(dec);
+    let mut r: Vec<Tick> = Vec::new();
+    while cur.position() != len {
         let timer = cur.read_i32::<BigEndian>().unwrap() as i64;
         let time = basetime.clone() + Duration::milliseconds(timer);
         let ask = cur.read_i32::<BigEndian>().unwrap() as f64 / decimalfactor;
         let bid = cur.read_i32::<BigEndian>().unwrap() as f64 / decimalfactor;
-        let ask_v = cur.read_f64::<BigEndian>().unwrap() as f32;
-        let bid_v = cur.read_f64::<BigEndian>().unwrap() as f32;
+        let ask_v = cur.read_f32::<BigEndian>().unwrap();
+        let bid_v = cur.read_f32::<BigEndian>().unwrap();
 
         let tick = Tick::new(time, ask, bid, ask_v, bid_v);
         r.push(tick);
     }
-
     return r;
+}
+
+fn debg_view(ticks: &Vec<Tick>) {
+    let mut count = 0;
+
+    for item in ticks {
+        println!("tick Time: {}", item.time);
+        if count > 100 {
+            break;
+        }
+        count += 1;
+    }
 }

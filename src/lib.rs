@@ -3,7 +3,17 @@ pub mod GetHistData;
 mod tests {
     use chrono::{Duration, Utc};
 
-    use crate::GetHistData::DukasCopy::{self, DataTypes::DukasTimeFrame, Get_HistoricRates::GetHistoricRates, Option::dukas_option, TrueDataTypes::True_Instrument, dates_normaliser::dates_normaliser, generate::Generate_TrueInstrumentData, url_generator::url_generator};
+    use crate::GetHistData::DukasCopy::{
+        self,
+        dates_normaliser::dates_normaliser,
+        generate::Generate_TrueInstrumentData,
+        url_generator::url_generator,
+        DataTypes::DukasTimeFrame,
+        Get_HistoricRates::GetHistoricRates,
+        Option::dukas_option,
+        Process::ProcessData::{Process},
+        TrueDataTypes::True_Instrument,
+    };
 
     #[test]
     fn it_works() {
@@ -11,25 +21,25 @@ mod tests {
 
         assert_eq!(2 + 2, 4);
     }
-    
+
     fn test() {
         Generate_TrueInstrumentData::Generate();
         let inst = Generate_TrueInstrumentData::Read_DukasInstrumentData();
         let s = inst.iter().find(|&x| x.Key.contains("USDJPY"));
-        let mut  inst=True_Instrument::default();
+        let mut inst = True_Instrument::default();
         match s {
-            Some(tst) => inst=tst.clone(),
+            Some(tst) => inst = tst.clone(),
             None => (),
         }
         let option = dukas_option::new(
             inst,
-            Utc::now()-Duration::days(10),
+            Utc::now() - Duration::days(10),
             Utc::now(),
             DukasTimeFrame::tick,
             DukasCopy::DataTypes::Price_Type::ask,
             0,
         );
-        let Date =dates_normaliser::TrueNormaliseDates(
+        let Date = dates_normaliser::TrueNormaliseDates(
             &option.instrument,
             &option.Dates.from,
             &option.Dates.to,
@@ -43,6 +53,8 @@ mod tests {
             &Date.adjustedFromDate,
             &Date.adjustedToDate,
         );
-        let DownloadTicks =GetHistoricRates::GetDownloadData(urls, 10);
+        let DownloadTicks = GetHistoricRates::GetDownloadData(urls, 10);
+        let data = Process(DownloadTicks, option.instrument);
+        println!("size is {}", &data.ticks.len());
     }
 }
