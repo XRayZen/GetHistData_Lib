@@ -39,15 +39,15 @@ impl dates_normaliser {
             DukasTimeFrame::mn1 => minFromIsoDate = &instrument.metaData.startYearForDailyCandles,
             _ => (),
         }
-        let mut minFromDate = Util::ISOStringToDateTime(&minFromIsoDate);
-        let mut  maxToDate = Utc::now();
+        let min_from_date = Util::ISOStringToDateTime(&minFromIsoDate);
+        let max_to_date = Utc::now();
         if utcoffset != &i32::default() {
             Start = Start + Duration::minutes(i64::from(utcoffset.clone()));
             End = End + Duration::minutes(i64::from(utcoffset.clone()));
         }
-        let adjustedFromDate =Self::applyDateLimits(& Start, &minFromDate, &maxToDate);
-        let adjustedToDate =Self::applyDateLimits(&End, &minFromDate, &maxToDate);
-        return Adjustment_Date::new(adjustedFromDate.clone(), adjustedToDate.clone());
+        let adjusted_from_date =Self::applyDateLimits(& Start, &min_from_date, &max_to_date);
+        let adjusted_to_date =Self::applyDateLimits(&End, &min_from_date, &max_to_date);
+        return Adjustment_Date::new(adjusted_from_date.clone(), adjusted_to_date.clone());
     }
     
 }

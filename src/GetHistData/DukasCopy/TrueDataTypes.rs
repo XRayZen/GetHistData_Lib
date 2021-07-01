@@ -1,7 +1,7 @@
 use core::f32;
 use serde::{Deserialize, Serialize};
 
-#[derive(Serialize,Deserialize,Debug,Default,Clone)]
+#[derive(Serialize,Deserialize,Debug,Default,Clone,PartialEq, PartialOrd)]
 pub struct True_Instrument {
     pub DataProviderName: String,
     pub Key: String,
@@ -16,7 +16,7 @@ impl True_Instrument {
     pub fn new(DataProviderName: String, Key: String, Name: String, Description: String, historicalFileName: String, Group: True_GroupData, metaData: True_InstrumentMetaData) -> Self { Self { DataProviderName, Key, Name, Description, historicalFileName, Group, metaData } }
 }
 
-#[derive(Serialize,Deserialize,Debug,Default,Clone)]
+#[derive(Serialize,Deserialize,Debug,Default,Clone,PartialEq, PartialOrd)]
 pub struct True_GroupData {
     pub GroupID: String,
     pub GroupName: String,
@@ -41,7 +41,7 @@ impl True_GroupData {
         }
     }
 }
-#[derive(Serialize,Deserialize,Debug,Default,Clone)]
+#[derive(Serialize,Deserialize,Debug,Default,Clone,PartialEq, PartialOrd)]
 pub struct True_InstrumentMetaData {
     pub decimalFactor: f64,
     pub startHourForTicks: String,

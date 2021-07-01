@@ -1,60 +1,22 @@
+use chrono::{DateTime, Utc};
+
 pub mod GetHistData;
+pub mod Test;
 #[cfg(test)]
 mod tests {
-    use chrono::{Duration, Utc};
 
-    use crate::GetHistData::DukasCopy::{
-        self,
-        dates_normaliser::dates_normaliser,
-        generate::Generate_TrueInstrumentData,
-        url_generator::url_generator,
-        DataTypes::DukasTimeFrame,
-        Get_HistoricRates::GetHistoricRates,
-        Option::dukas_option,
-        Process::ProcessData::{Process},
-        TrueDataTypes::True_Instrument,
-    };
+}
 
-    #[test]
-    fn it_works() {
-        test();
+pub fn Get_HistricRate(SymbolName:String,From:DateTime<Utc>,To:DateTime<Utc>) {
+    
+}
 
-        assert_eq!(2 + 2, 4);
-    }
+pub enum GetHistDataType
+{
+    Tick, OHLC
+}
 
-    fn test() {
-        Generate_TrueInstrumentData::Generate();
-        let inst = Generate_TrueInstrumentData::Read_DukasInstrumentData();
-        let s = inst.iter().find(|&x| x.Key.contains("USDJPY"));
-        let mut inst = True_Instrument::default();
-        match s {
-            Some(tst) => inst = tst.clone(),
-            None => (),
-        }
-        let option = dukas_option::new(
-            inst,
-            Utc::now() - Duration::days(10),
-            Utc::now(),
-            DukasTimeFrame::tick,
-            DukasCopy::DataTypes::Price_Type::ask,
-            0,
-        );
-        let Date = dates_normaliser::TrueNormaliseDates(
-            &option.instrument,
-            &option.Dates.from,
-            &option.Dates.to,
-            &option.timefrme,
-            &option.utcoffset,
-        );
-        let urls = url_generator::generateUrls(
-            &option.instrument,
-            &option.timefrme,
-            &option.price_type,
-            &Date.adjustedFromDate,
-            &Date.adjustedToDate,
-        );
-        let DownloadTicks = GetHistoricRates::GetDownloadData(urls, 10);
-        let data = Process(DownloadTicks, option.instrument);
-        println!("size is {}", &data.ticks.len());
-    }
+pub enum DataProviderType
+{
+    Dukascopy, TrueFX
 }

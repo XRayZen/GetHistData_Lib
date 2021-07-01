@@ -2,7 +2,6 @@ use regex::Regex;
 use Util::read_json_to_currentdir_trueinstrument;
 
 use crate::GetHistData::Service::{
-    FileService,
     Util::{self, generateTrueIdNane},
 };
 
@@ -84,14 +83,14 @@ impl Generate_TrueInstrumentData {
     ) -> Vec<True_Instrument> {
         let mut Res: Vec<True_Instrument> = Vec::default();
         for item in obj.instruments.iter() {
-            let mut inst = item.1.clone();
+            let inst = item.1.clone();
             let mut Hist_Filename = String::new();
             match inst.historical_filename.clone() {
                 Some(txt) => Hist_Filename = txt,
                 None => (),
             }
             let groupdata = groupDates.clone();
-            let mut key = Util::generateTrueIdNane(&Hist_Filename, item.0);
+            let key = Util::generateTrueIdNane(&Hist_Filename, item.0);
             let group_option = groupdata
                 .iter()
                 .find(|&x| x.Group_Instruments.contains(&key));

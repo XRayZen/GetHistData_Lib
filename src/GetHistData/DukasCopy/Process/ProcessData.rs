@@ -1,17 +1,17 @@
-use core::f32;
+
 use std::{
-    io::{Cursor, Read, Seek},
+    io::{Cursor},
     sync::{Arc, Mutex},
 };
 
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
+use byteorder::{BigEndian, ReadBytesExt};
 use chrono::{DateTime, Datelike, Duration, TimeZone, Timelike, Utc};
-use lzma_rs::{lzma2_decompress, lzma_decompress, lzma_decompress_with_options};
+use lzma_rs::{lzma_decompress};
 use rayon::{
     iter::{IndexedParallelIterator, IntoParallelRefIterator, ParallelIterator},
     slice::ParallelSliceMut,
 };
-use xz2::{read::XzDecoder, stream};
+
 use Standard_Lib::{
     datas::market::{AssetType, Symbol, Tick},
     Util::NotifyUtil::Notify,
@@ -64,12 +64,12 @@ pub fn Process(response: Vec<BufferObject>, instrument: True_Instrument) -> Symb
         }
         result_ticks.append(&mut temp);
     }
-    return CreateSymbolInTick(result_ticks, &instrument);
+    return CreateSymbolInTick( result_ticks, &instrument);
 }
 
-fn CreateSymbolInTick(res_Ticks: Vec<Tick>, instrument: &True_Instrument) -> Symbol {
+fn CreateSymbolInTick(mut res_Ticks: Vec<Tick>, instrument: &True_Instrument) -> Symbol {
     let mut Name = "".to_string();
-    let assettype = self::ConvertAssetType(&instrument);
+    let assettype = self::convert_asset_type(&instrument);
     //インデックスなどを汎用的な名前に変換したいがまだ検討中
     match assettype {
         AssetType::Forex => Name = instrument.Key.clone(),
@@ -81,33 +81,18 @@ fn CreateSymbolInTick(res_Ticks: Vec<Tick>, instrument: &True_Instrument) -> Sym
     }
     let mut temp = Symbol::Default_Symbol();
     temp.name = Name;
-    //debg_view(&res_Ticks);
-    temp.ticks = Tick_Sort(res_Ticks); //独自にソートするメソッドを作る必要あり
+    temp.ticks=tick_sort_par(res_Ticks);
     debg_view(&temp.ticks);
     return temp;
 }
 
-fn Tick_Sort(ticks: Vec<Tick>) -> Vec<Tick> {
-    let mut res: Vec<Tick> = Vec::new();
-    let mut cur = ticks[0].time.clone();
-    res.push(ticks[0].clone());
-    let count=&ticks.len();
-    while &res.len() != &ticks.len() {
-        for tick in &ticks {
-            if cur < tick.time {
-                let k = tick.clone();
-                res.push(k.clone());
-                cur = tick.time;
-                println!("tick count: {} Time : {}", &res.len(), &cur);
-            }
-        }
-        println!("res len :{} ticks len:{}",&res.len(),count);
-    }
-    return res;
+fn tick_sort_par(mut ticks: Vec<Tick>) -> Vec<Tick>  {
+    ticks.par_sort_by_key(|x|x.time);
+    return ticks;
 }
 
 
-fn ConvertAssetType(instrument: &True_Instrument) -> AssetType {
+fn convert_asset_type(instrument: &True_Instrument) -> AssetType {
     //今はFXのみ返す
     if instrument.Group.GroupName.contains("FX") {
         return AssetType::Forex;
