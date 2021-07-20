@@ -2,6 +2,7 @@ use chrono::{DateTime, Utc};
 use DB_Lib::SubMod::DBCtrl::{
     Convert::DeConvertTick,
     FindRead::{ReadTickDataCheck, ReadTickSelectTime},
+    Insert::SaveTick,
 };
 use GetHistData::GetTickDukas;
 use Standard_Lib::datas::market::Tick;
@@ -9,9 +10,7 @@ use Standard_Lib::datas::market::Tick;
 mod GetHistData;
 pub mod Test;
 #[cfg(test)]
-mod tests {
-    
-}
+mod tests {}
 
 //バックテスターなどがデータがないか最初に来るメソッド
 pub async fn Get_HistricRate(
@@ -41,6 +40,15 @@ pub async fn Get_HistricRate(
                     let res = GetTickDukas(SymbolName, From, To);
                     match res {
                         Ok(item) => {
+                            let save_res = SaveTick(SymbolName, &item).await;
+                            match save_res {
+                                Ok(insert_c) => {
+                                    println!("insert count:{}", insert_c);
+                                }
+                                Err(err) => {
+                                    println!("{}", &err);
+                                }
+                            }
                             return item.ticks;
                         }
                         Err(err) => {

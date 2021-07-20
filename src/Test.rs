@@ -1,21 +1,20 @@
 
 use chrono::{Duration, Utc};
 
-use crate::GetHistData::{
+use crate::{GetHistData::{
     GetTickDukas,
-};
+}, Get_HistricRate};
 
-#[test]
-fn it_works() {
-    test();
+#[tokio::test]
+async fn it_works() {
+    test().await;
     assert_eq!(2 + 2, 4);
 }
 
-fn test() {
+async fn test() {
     let from=Utc::now() - Duration::days(10);
-    let sym = GetTickDukas(
-        "USDJPY",
-        &from,
-        &Utc::now(),
-    );
+    let to=Utc::now();
+    let sym = Get_HistricRate("USDJPY", &from,
+     &to, &crate::DataProviderType::Dukascopy, &crate::GetHistDataType::Tick).await;
+
 }
