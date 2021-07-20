@@ -1,8 +1,5 @@
-
 use rayon::prelude::*;
-use std::{
-    sync::{Arc, Mutex},
-};
+use std::sync::{Arc, Mutex};
 use Standard_Lib::{
     datas::market::Symbol,
     Util::NotifyUtil::{failed_or_sucess, Notify},
@@ -27,8 +24,9 @@ pub struct GetHistoricRates {
 
 impl GetHistoricRates {
     pub fn new() -> Self {
-        let dukas_instruments=Vec::default();
-        Self { dukas_instruments } }
+        let dukas_instruments = Vec::default();
+        Self { dukas_instruments }
+    }
 
     pub fn Ready(&mut self) {
         let res = Generate_TrueInstrumentData::Read_DukasInstrumentData();
@@ -41,17 +39,19 @@ impl GetHistoricRates {
         }
     }
 
-pub fn Find_SymbolName(&mut self,name:String,)->True_Instrument {
-    let inst=self.dukas_instruments.iter().
-    find(|x|x.Key.contains(name.as_str()));
-    match inst {
-        Some(data) => return data.clone(),
-        None => (),
+    pub fn Find_SymbolName(&mut self, name: &str) -> True_Instrument {
+        let inst = self
+            .dukas_instruments
+            .iter()
+            .find(|x| x.Key.contains(name));
+        match inst {
+            Some(data) => return data.clone(),
+            None => (),
+        }
+        return True_Instrument::default();
     }
-    return True_Instrument::default();
-}
 
-    pub fn GetHistoricRate(&mut self,option: &dukas_option, TaskCount: u32) -> Symbol {
+    pub fn GetHistoricRate(&mut self, option: &dukas_option, TaskCount: u32) -> Symbol {
         let Date = dates_normaliser::TrueNormaliseDates(
             &option.instrument,
             &option.Dates.from,
@@ -87,7 +87,7 @@ pub fn Find_SymbolName(&mut self,name:String,)->True_Instrument {
         return Symbol::Default_Symbol();
     }
 
- fn GetDownloadData(urls: Vec<Output_URLGenerate>, taskcount: u32) -> Vec<BufferObject> {
+    fn GetDownloadData(urls: Vec<Output_URLGenerate>, taskcount: u32) -> Vec<BufferObject> {
         let mut result: Vec<BufferObject> = Vec::new();
         let counter = Arc::new(Mutex::new(0));
         let urls_count = Arc::new(Mutex::new(urls.len() as i32));
@@ -132,7 +132,8 @@ pub fn Find_SymbolName(&mut self,name:String,)->True_Instrument {
                 &url.NowDate,
             );
         }
-        let mut count = *counter.lock().unwrap();
+        //バグが有るためコメントアウト
+        /* let mut count = *counter.lock().unwrap();
         count += 1;
         let count_ = count as f64;
         let total_c = *urls_count.lock().unwrap();
@@ -141,7 +142,7 @@ pub fn Find_SymbolName(&mut self,name:String,)->True_Instrument {
             "ヒストリカルデータのダウンロード".to_string(),
             &total_c_,
             &count_,
-        );
+        );*/
         let r = BufferObject::new(success, url.URL.clone(), data, url.clone());
         return r;
     }

@@ -12,9 +12,10 @@ fn it_works() {
 }
 
 fn test() {
+    let from=Utc::now() - Duration::days(10);
     let sym = GetTickDukas(
-        "USDJPY".to_string(),
-        Utc::now() - Duration::days(10),
-        Utc::now(),
+        "USDJPY",
+        &from,
+        &Utc::now(),
     );
 }

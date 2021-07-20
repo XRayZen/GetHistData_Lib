@@ -20,3 +20,4 @@ xz2="0.1.6"
 byteorder="1.4.3"
 lzma-rs="0.2.0"
 Standard_Lib={git="https://github.com/XRayZen/Standard_Lib"}
+DB_Lib={git="https://github.com/XRayZen/DB_Lib"}
