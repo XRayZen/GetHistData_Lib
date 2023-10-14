@@ -27,7 +27,7 @@
 # 使い方
 ## データ取得
 ```rust
-let tickData = Get_HistricRate::get_hist_data("AUDJPY", "2019-01-01", "2019-01-31");
+let tickData = Get_HistricRate("USDJPY", "2019-01-01", "2019-01-31").await?;
 ```
 
 # 工夫した点・苦労した点
